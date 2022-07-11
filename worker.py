@@ -56,11 +56,16 @@ async def update_job_progress(job, process):
         # get the most recent line of the process's stdout without waiting for it to finish
 
         print(f"Getting progress...")
-        
-        with open(f"images_out/{job['_id']}/progress_data.txt", "r+") as f:
-            data = f.read()
-            js = json.loads(data if data else "{}")
-            progress = js.get("percent", 0)
+
+        progress = 0
+        progress_filename = f"images_out/{job['_id']}/progress_data.txt"
+        if not os.path.exists(progress_filename):
+            print(f"Progress file not found: {progress_filename}")
+        else:
+            with open(progress_filename, "r+") as f:
+                data = f.read()
+                js = json.loads(data if data else "{}")
+                progress = js.get("percent", 0)
 
         # old stuff from trying to get the ETA and etc from stdout PIPE but it didn't work and I don't know why
         # if line:
