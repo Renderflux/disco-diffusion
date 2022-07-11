@@ -54,7 +54,15 @@ async def update_job_progress(job, process):
         await asyncio.sleep(PROGRESS_INTERVAL)
 
         # get the most recent line of the process's stdout without waiting for it to finish
-        line = (await process.stdout.readline()).decode('utf-8')
+        line = None
+        while True:
+            try:
+                l = process.stdout.readline().decode('utf-8')
+                if l:
+                    line = l
+            except Exception:
+                break
+
         if line:
             print(f"Got line: {line}")
 
