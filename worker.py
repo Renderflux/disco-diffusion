@@ -48,7 +48,7 @@ def construct_cmd(job, _id):
 
 async def update_job_progress(job):
 
-    filename = f"/workspace/images_out/{job['_id']}/progress.png"
+    filename = f"images_out/{job['_id']}/progress.png"
 
     while True:
         await asyncio.sleep(PROGRESS_INTERVAL)
