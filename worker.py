@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import json
 import os
 import subprocess
 import sys
@@ -22,8 +23,8 @@ async def fetch_job():
 def construct_cmd(job, _id):
     args = ["python disco.py"]
 
-    args.append("--text_prompt \"{\\\"0\\\": \\\"" + job['prompt'] + "\\\"}\"")
-    args.append(f"--width_height [{job['width']}, {job['height']}]")
+    args.append("--text_prompt \"{\\\"0\\\": \\\""+job['prompt']+"\\\"}\"")
+    args.append(f"--width_height \"[{job['width']}, {job['height']}]\"")
     args.append(f"--batch_name {_id}")
     args.append("--n_batches=1")
     args.append(f"--steps={job['steps']}")
@@ -87,6 +88,9 @@ async def run_job():
 
     if process.returncode != 0:
         print(f"Error with job...")
+
+        print(f"Stdout: {(await process.stdout.read()).decode('utf-8')}")
+        print(f"Stderr: {(await process.stderr.read()).decode('utf-8')}")
 
         async with aiohttp.ClientSession() as session:
             async with session.post(f"{BASE}jobs/{job['_id']}/fail", json={"error": "job failed"}) as resp:
