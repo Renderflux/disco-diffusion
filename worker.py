@@ -9,7 +9,7 @@ import aiohttp
 BASE = "https://api.renderflux.com/"
 JOB_SEARCH_WAIT = 5
 JOB_FAIL_WAIT = 5
-PROGRESS_INTERVAL = 60
+PROGRESS_INTERVAL = 120
 
 async def fetch_job():
     async with aiohttp.ClientSession() as session:
@@ -46,9 +46,13 @@ def construct_cmd(job, _id):
 
     return " ".join(args)
 
-async def update_job_progress(job):
+async def update_job_progress(job, process):
 
     filename = f"images_out/{job['_id']}/progress.png"
+
+    # grab stout
+    stdout = (await process.stdout.read()).decode('utf-8')
+    print(f"Stdout: {stdout}")
 
     while True:
         await asyncio.sleep(PROGRESS_INTERVAL)
@@ -77,11 +81,15 @@ async def run_job():
     job = await fetch_job()
 
     print(f"Got job: {job.get('_id')}")
-
-    progress_task = asyncio.create_task(update_job_progress(job))
     
     cmd = construct_cmd(job['settings'], job.get('_id'))
     process = await asyncio.create_subprocess_shell(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    print(f"Spawned process: {cmd}")
+
+    progress_task = asyncio.create_task(update_job_progress(job, process))
+    print(f"Spawned progress task...")
+
     await process.wait()
 
     progress_task.cancel()
