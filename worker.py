@@ -69,7 +69,7 @@ async def update_job_progress(job):
                 if resp.status != 200:
                     print(f"Error sending progress data to API...")
                     await asyncio.sleep(JOB_FAIL_WAIT)
-                    return
+                    continue
                 print(f"Sent progress data to API...")
         
 
