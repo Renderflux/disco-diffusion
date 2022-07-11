@@ -95,7 +95,7 @@ async def run_job():
         async with aiohttp.ClientSession() as session:
             async with session.post(f"{BASE}jobs/{job['_id']}/fail", json={"error": "job failed"}) as resp:
                 if resp.status != 200:
-                    print(f"Error sending fail data to API...")
+                    print(f"Error sending fail data to API... {resp.status}: {await resp.text()}")
                     await asyncio.sleep(JOB_FAIL_WAIT)
                     return
                 print(f"Sent fail data to API...")
