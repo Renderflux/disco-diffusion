@@ -51,7 +51,7 @@ async def update_job_progress(job, process):
     filename = f"images_out/{job['_id']}/progress.png"
 
     # grab stout
-    stdout = (await process.stdout.read()).decode('utf-8')
+    stdout = (await process.stdout.readline()).decode('utf-8')
     print(f"Stdout: {stdout}")
 
     while True:
