@@ -60,6 +60,8 @@ async def update_job_progress(job, process):
                 l = (await process.stdout.readline()).decode('utf-8')
                 if l:
                     line = l
+                else:
+                    break
             except Exception:
                 break
 
