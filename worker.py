@@ -50,9 +50,10 @@ async def update_job_progress(job, process):
 
     filename = f"images_out/{job['_id']}/progress.png"
 
-    # grab stout
-    stdout = (await process.stdout.readline()).decode('utf-8')
-    print(f"Stdout: {stdout}")
+    # get the most recent line of the process's stdout without waiting for it to finish
+    line = (await process.stdout.readline()).decode('utf-8')
+    if line:
+        print(f"Got line: {line}")
 
     while True:
         await asyncio.sleep(PROGRESS_INTERVAL)
