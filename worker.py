@@ -1,9 +1,12 @@
 import asyncio
+import subprocess
+import sys
 import aiohttp
 
 BASE = "https://api.renderflux.com/"
 JOB_SEARCH_WAIT = 5
 JOB_FAIL_WAIT = 5
+PROGRESS_INTERVAL = 60
 
 async def fetch_job():
     async with aiohttp.ClientSession() as session:
@@ -24,13 +27,27 @@ def construct_cmd(job):
 
     return f"python disco.py{args}"
 
+async def update_job_progress(job):
+    while True:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(f"{BASE}batches/{job['_id']}/progress", data=open(f"/workspace/images_out/{job['_id']}/progress.png", "rb")) as resp:
+                if resp.status != 200:
+                    print(f"Error sending progress data to API...")
+                    await asyncio.sleep(JOB_FAIL_WAIT)
+                    return
+                print(f"Sent progress data to API...")
+        await asyncio.sleep(PROGRESS_INTERVAL)
+
 async def run_job():
     job = await fetch_job()
 
+    progress_task = asyncio.create_task(update_job_progress(job))
+    
     cmd = construct_cmd(job)
-
-    process = await asyncio.create_subprocess_shell(cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+    process = asyncio.create_subprocess_shell(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     await process.wait()
+
+    progress_task.cancel()
 
     if process.returncode != 0:
         print(f"Error with job...")
