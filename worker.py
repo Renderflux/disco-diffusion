@@ -109,7 +109,7 @@ async def run_job():
 
     # send the file data to the API when the job completes
     async with aiohttp.ClientSession() as session:
-        async with session.post(f"{BASE}batches/{job['_id']}/complete", json=json) as resp:
+        async with session.post(f"{BASE}jobs/{job['_id']}/complete", json=json) as resp:
             if resp.status != 200:
                 print(f"Error sending file data to API...")
                 await asyncio.sleep(JOB_FAIL_WAIT)
