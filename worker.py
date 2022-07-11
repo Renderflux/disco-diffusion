@@ -23,7 +23,7 @@ async def fetch_job():
 def construct_cmd(job, _id):
     args = ["python disco.py"]
 
-    args.append("--text_prompt \"{\\\"0\\\": \\\""+job['prompt']+"\\\"}\"")
+    args.append("--text_prompt \"{\\\"0\\\": [\\\""+job['prompt']+"\\\"]}\"")
     args.append(f"--width_height \"[{job['width']}, {job['height']}]\"")
     args.append(f"--batch_name {_id}")
     args.append("--n_batches=1")
