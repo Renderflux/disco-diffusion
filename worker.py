@@ -5,6 +5,7 @@ import os
 import subprocess
 import sys
 import aiohttp
+import re
 
 BASE = "https://api.renderflux.com/"
 JOB_SEARCH_WAIT = 5
@@ -49,6 +50,7 @@ def construct_cmd(job, _id):
 async def update_job_progress(job, process):
 
     filename = f"images_out/{job['_id']}/progress.png"
+    progress = 0
 
     while True:
         await asyncio.sleep(PROGRESS_INTERVAL)
@@ -61,7 +63,7 @@ async def update_job_progress(job, process):
             try:
                 l = (await process.stdout.readline()).decode('utf-8')
                 print(f"Got line: {l}")
-                if l:
+                if len(l) > 0:
                     line = l
                 else:
                     break
@@ -71,6 +73,11 @@ async def update_job_progress(job, process):
         if line:
             print(f"Got line: {line}")
 
+            match = re.search(r"([0-9]+)\/([0-9]+) \[([0-9]+):([0-9]+)<([0-9]+):([0-9]+), ([0-9.]+)it\/s\]", line)
+            if match:
+                progress = int(match.group(1)) / int(match.group(2))
+                print(f"Got progress: {progress}")
+
         # check if file exists
         if not os.path.isfile(filename):
             print(f"Progress file {filename} does not exist yet...")
@@ -79,7 +86,7 @@ async def update_job_progress(job, process):
         async with aiohttp.ClientSession() as session:
 
             json = {
-                "progress": 0,
+                "progress": progress,
                 "image": base64.b64encode(open(filename, "rb").read()).decode("utf-8")
             }
 
