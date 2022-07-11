@@ -50,33 +50,25 @@ def construct_cmd(job, _id):
 async def update_job_progress(job, process):
 
     filename = f"images_out/{job['_id']}/progress.png"
-    progress = 0
 
     while True:
         await asyncio.sleep(PROGRESS_INTERVAL)
-
         # get the most recent line of the process's stdout without waiting for it to finish
 
         print(f"Getting progress...")
-        line = None
-        while True:
-            try:
-                l = (await process.stdout.readline()).decode('utf-8')
-                print(f"Got line: {l}")
-                if len(l) > 0:
-                    line = l
-                else:
-                    break
-            except Exception:
-                break
+        
+        with open(f"images_out/{job['_id']}/progress_data.txt", "r") as f:
+            js = json.loads(f.read())
+            progress = js["progress"]
 
-        if line:
-            print(f"Got line: {line}")
+        # old stuff from trying to get the ETA and etc from stdout PIPE but it didn't work and I don't know why
+        # if line:
+        #     print(f"Got line: {line}")
 
-            match = re.search(r"([0-9]+)\/([0-9]+) \[([0-9]+):([0-9]+)<([0-9]+):([0-9]+), ([0-9.]+)it\/s\]", line)
-            if match:
-                progress = int(match.group(1)) / int(match.group(2))
-                print(f"Got progress: {progress}")
+        #     match = re.search(r"([0-9]+)\/([0-9]+) \[([0-9]+):([0-9]+)<([0-9]+):([0-9]+), ([0-9.]+)it\/s\]", line)
+        #     if match:
+        #         progress = int(match.group(1)) / int(match.group(2))
+        #         print(f"Got progress: {progress}")
 
         # check if file exists
         if not os.path.isfile(filename):

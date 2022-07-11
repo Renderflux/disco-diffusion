@@ -1779,6 +1779,16 @@ def disco(args, folders, frame_num, clip_models, init_scale, skip_steps, seconda
             elif j in args.intermediate_saves:
                 intermediateStep = True
             percent = math.ceil(j / total_steps * 100)
+
+            # save percent in a file to be picked up by the parent
+            filename = f"{args.batchFolder}/{args.batch_name}/progress_data.txt"
+            with open(filename, "w") as f:
+                json.dump({
+                    "percent": percent,
+                    "step": j,
+                    "total_steps": total_steps,
+                }, f)
+
             if args.dd_bot:
                 prev_ts = dd_bot.update_progress(progress_url, percent, device, prev_ts)
             with image_display:
