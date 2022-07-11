@@ -104,7 +104,7 @@ async def run_job():
         return
 
     json = {
-        "image": base64.b64encode(open(f"/workspace/images_out/{job['_id']}/{job['_id']}(0)_0.png", "rb").read()).decode("utf-8")
+        "image": base64.b64encode(open(f"images_out/{job['_id']}/{job['_id']}(0)_0.png", "rb").read()).decode("utf-8")
     }
 
     # send the file data to the API when the job completes
