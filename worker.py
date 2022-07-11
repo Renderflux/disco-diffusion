@@ -19,12 +19,12 @@ async def fetch_job():
                 else:
                     await asyncio.sleep(JOB_SEARCH_WAIT)
 
-def construct_cmd(job):
+def construct_cmd(job, _id):
     args = ["python disco.py"]
 
     args.append("--text_prompt \"{\\\"0\\\": \\\"" + job['prompt'] + "\\\"}\"")
     args.append(f"--width_height [{job['width']}, {job['height']}]")
-    args.append(f"--batch_name {job['_id']}")
+    args.append(f"--batch_name {_id}")
     args.append("--n_batches=1")
     args.append(f"--steps={job['steps']}")
 
@@ -54,6 +54,7 @@ async def update_job_progress(job):
 
         # check if file exists
         if not os.path.isfile(filename):
+            print(f"Progress file {filename} does not exist yet...")
             continue
 
         async with aiohttp.ClientSession() as session:
@@ -74,10 +75,12 @@ async def update_job_progress(job):
 async def run_job():
     job = await fetch_job()
 
+    print(f"Got job: {job.get('_id')}")
+
     progress_task = asyncio.create_task(update_job_progress(job))
     
-    cmd = construct_cmd(job['settings'])
-    process = asyncio.create_subprocess_shell(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    cmd = construct_cmd(job['settings'], job.get('_id'))
+    process = await asyncio.create_subprocess_shell(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     await process.wait()
 
     progress_task.cancel()
