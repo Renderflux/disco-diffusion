@@ -19,6 +19,11 @@ jobs:
         root-reserve-mb: 512
         swap-size-mb: 1024
         remove-dotnet: 'true'
+        
+    - name: Check available space
+      run: |
+          echo "Free space:"
+          df -h
           
     - uses: actions/checkout@v3
     - name: Build the Docker image
