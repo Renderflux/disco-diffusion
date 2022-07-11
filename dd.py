@@ -1782,7 +1782,7 @@ def disco(args, folders, frame_num, clip_models, init_scale, skip_steps, seconda
 
             # save percent in a file to be picked up by the parent
             filename = f"{args.batchFolder}/{args.batch_name}/progress_data.txt"
-            with open(filename, "w") as f:
+            with open(filename, "w+") as f:
                 json.dump({
                     "percent": percent,
                     "step": j,

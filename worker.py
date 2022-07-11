@@ -57,9 +57,10 @@ async def update_job_progress(job, process):
 
         print(f"Getting progress...")
         
-        with open(f"images_out/{job['_id']}/progress_data.txt", "r") as f:
-            js = json.loads(f.read())
-            progress = js["progress"]
+        with open(f"images_out/{job['_id']}/progress_data.txt", "r+") as f:
+            data = f.read()
+            js = json.loads(data if data else "{}")
+            progress = js.get("percent", 0)
 
         # old stuff from trying to get the ETA and etc from stdout PIPE but it didn't work and I don't know why
         # if line:
