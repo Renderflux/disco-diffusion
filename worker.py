@@ -18,14 +18,25 @@ async def fetch_job():
                     await asyncio.sleep(JOB_SEARCH_WAIT)
 
 def construct_cmd(job):
-    args = ""
+    args = ["python disco.py"]
 
-    args += " --text_prompt \"{\\\"0\\\": \\\"" + job['prompt'] + "\\\"}\""
-    args += f" --width_height [{job['width']}, {job['height']}]"
-    args += f" --batch_name {job['_id']}"
-    args += " --n_batches=1"
+    args.append("--text_prompt \"{\\\"0\\\": \\\"" + job['prompt'] + "\\\"}\"")
+    args.append(f"--width_height [{job['width']}, {job['height']}]")
+    args.append(f"--batch_name {job['_id']}")
+    args.append("--n_batches=1")
+    args.append(f"--steps={job['steps']}")
+    args.append(f"--{job['model']} true")
+    args.append(f"--clip_guidance_scale={job['clip_guidance_scale']}")
+    args.append(f"--diffusion_model={job['diffusion_model']}")
+    args.append(f"--clamp_max={job['clamp_max']}")
+    args.append(f"--cut_ic_pow={job['cut_ic_pow']}")
+    args.append(f"--cutn_batches={job['cutn_batches']}")
+    args.append(f"--sat_scale={job['sat_scale']}")
+    args.append(f"--set_seed={job['seed']}")
+    args.append(f"--cut_innercut={job['cut_innercut']}")
+    args.append(f"--cut_overview={job['cut_overview']}")
 
-    return f"python disco.py{args}"
+    return " ".join(args)
 
 async def update_job_progress(job):
     while True:
