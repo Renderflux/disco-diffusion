@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import os
 import subprocess
 import sys
 import aiohttp
@@ -45,12 +46,21 @@ def construct_cmd(job):
     return " ".join(args)
 
 async def update_job_progress(job):
+
+    filename = f"/workspace/images_out/{job['_id']}/progress.png"
+
     while True:
+        await asyncio.sleep(PROGRESS_INTERVAL)
+
+        # check if file exists
+        if not os.path.isfile(filename):
+            continue
+
         async with aiohttp.ClientSession() as session:
 
             json = {
                 "progress": 0,
-                "image": base64.b64encode(open(f"/workspace/images_out/{job['_id']}/progress.png", "rb").read()).decode("utf-8")
+                "image": base64.b64encode(open(filename, "rb").read()).decode("utf-8")
             }
 
             async with session.post(f"{BASE}jobs/{job['_id']}/progress", json=json) as resp:
@@ -59,7 +69,7 @@ async def update_job_progress(job):
                     await asyncio.sleep(JOB_FAIL_WAIT)
                     return
                 print(f"Sent progress data to API...")
-        await asyncio.sleep(PROGRESS_INTERVAL)
+        
 
 async def run_job():
     job = await fetch_job()
