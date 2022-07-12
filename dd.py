@@ -1790,8 +1790,8 @@ def disco(args, folders, frame_num, clip_models, init_scale, skip_steps, seconda
                         percent = math.ceil(j / total_steps * 100)
 
                         # save percent in a file to be picked up by the parent
-                        filename = f"{args.batchFolder}/progress_data.txt"
-                        with open(filename, "w+") as f:
+                        progress_filename = f"{args.batchFolder}/progress_data.txt"
+                        with open(progress_filename, "w+") as f:
                             json.dump({
                                 "percent": j / total_steps,
                                 "step": j,
