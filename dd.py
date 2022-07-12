@@ -1780,15 +1780,6 @@ def disco(args, folders, frame_num, clip_models, init_scale, skip_steps, seconda
                 intermediateStep = True
             percent = math.ceil(j / total_steps * 100)
 
-            # save percent in a file to be picked up by the parent
-            filename = f"{args.batchFolder}/progress_data.txt"
-            with open(filename, "w+") as f:
-                json.dump({
-                    "percent": percent,
-                    "step": j,
-                    "total_steps": total_steps,
-                }, f)
-
             if args.dd_bot:
                 prev_ts = dd_bot.update_progress(progress_url, percent, device, prev_ts)
             with image_display:
@@ -1797,6 +1788,16 @@ def disco(args, folders, frame_num, clip_models, init_scale, skip_steps, seconda
                         tqdm.write(f"Batch {i}, step {j}, output {k}:")
                         # tqdm.write(datetime.now().strftime("%y%m%d-%H%M%S_%f"))
                         percent = math.ceil(j / total_steps * 100)
+
+                        # save percent in a file to be picked up by the parent
+                        filename = f"{args.batchFolder}/progress_data.txt"
+                        with open(filename, "w+") as f:
+                            json.dump({
+                                "percent": j / total_steps,
+                                "step": j,
+                                "total_steps": total_steps,
+                            }, f)
+
                         if args.n_batches > 0:
                             # if intermediates are saved to the subfolder, don't append a step or percentage to the name
                             save_num = f"{frame_num:04}" if args.animation_mode != "None" else i
