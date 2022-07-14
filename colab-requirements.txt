@@ -17,3 +17,4 @@ deepdiff
 twilio
 markdown2
 torchmetrics
+git+https://github.com/mlfoundations/open_clip.git

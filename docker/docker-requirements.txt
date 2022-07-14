@@ -27,6 +27,7 @@ opencv-python
 jupyterlab
 nvidia-ml-py3
 git+https://github.com/openai/CLIP
+git+https://github.com/mlfoundations/open_clip.git
 git+https://github.com/entmike/guided-diffusion@packagify
 git+https://github.com/ahupp/ResizeRight@packagify
 git+https://github.com/ahupp/MiDaS@packagify 

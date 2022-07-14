@@ -9,7 +9,7 @@ ViTB32: true
 ViTL14: false
 ViTL14_336: false
 # 2D Animation Settings
-angle: 0:(0)
+angle: '0:(0)'
 animation_mode: None
 batch_name: TimeToDisco
 check_model_SHA: false
@@ -94,4 +94,4 @@ vr_mode: false
 width_height:
 - 1280
 - 768
-zoom: '"0: (1), 10: (1.05)'
+zoom: '0: (1), 10: (1.05)'

@@ -53,6 +53,7 @@ import torchvision.transforms.functional as TF
 from resize_right import resize
 import disco_xform_utils as dxf
 from downloadModels import loadModels
+from downloadModels2 import loadModels2
 import dd_prompt_salad
 import voronoi_utils
 
@@ -61,6 +62,7 @@ import voronoi_utils
 from pytorch3d import transforms
 
 from clip import clip
+import open_clip
 from ipywidgets import Output
 import argparse
 import dd_bot
@@ -1109,47 +1111,22 @@ def prepModels(args=None):
             }
         )
     # Credit https://github.com/KaliYuga-ai/Pixel-Art-Diffusion/blob/e037fd58e2aef58f28d7511ea6dcb184e898e39f/Pixel_Art_Diffusion_v1_0.ipynb
-    if args.diffusion_model == "pixel_art_diffusion_hard_256":
-        model_config.update(
-            {
-                "attention_resolutions": "16",
-                "class_cond": False,
-                "diffusion_steps": 1000,  # No need to edit this, it is taken care of later.
-                "rescale_timesteps": True,
-                "timestep_respacing": "ddim100",  # No need to edit this, it is taken care of later.
-                "image_size": 256,
-                "learn_sigma": True,
-                "noise_schedule": "linear",
-                "num_channels": 128,
-                "num_heads": 1,
-                "num_res_blocks": 2,
-                "use_checkpoint": args.use_checkpoint,
-                "use_fp16": not args.useCPU,
-                "use_scale_shift_norm": False,
-            }
-        )
-    # Credit https://github.com/KaliYuga-ai/Pixel-Art-Diffusion/blob/e037fd58e2aef58f28d7511ea6dcb184e898e39f/Pixel_Art_Diffusion_v1_0.ipynb
-    if args.diffusion_model == "pixel_art_diffusion_soft_256":
-        model_config.update(
-            {
-                "attention_resolutions": "16",
-                "class_cond": False,
-                "diffusion_steps": 1000,  # No need to edit this, it is taken care of later.
-                "rescale_timesteps": True,
-                "timestep_respacing": "ddim100",  # No need to edit this, it is taken care of later.
-                "image_size": 256,
-                "learn_sigma": True,
-                "noise_schedule": "linear",
-                "num_channels": 128,
-                "num_heads": 1,
-                "num_res_blocks": 2,
-                "use_checkpoint": args.use_checkpoint,
-                "use_fp16": not args.useCPU,
-                "use_scale_shift_norm": False,
-            }
-        )
     # Credit https://huggingface.co/spaces/Gradio-Blocks/clip-guided-faces/blob/main/app.py
-    if args.diffusion_model == "256x256_openai_comics_faces_by_alex_spirin_084000":
+    # Credit https://huggingface.co/thegenerativegeneration/ukiyoe-diffusion-256/tree/main
+    # Credit https://colab.research.google.com/drive/11Bs4wCs9R84DVAwDb3MkvDAd8V_Mw1e6?usp=sharing
+    if args.diffusion_model in [
+        "pixel_art_diffusion_soft_256",
+        "pixel_art_diffusion_hard_256",
+        "256x256_openai_comics_faces_by_alex_spirin_084000",
+        "ukiyoe_diffusion_256_022000",
+        "pixelartdiffusion_expanded",
+        "pixelartdiffusion4k",
+        "PADexpanded",
+        "watercolordiffusion",
+        "watercolordiffusion_2",
+        "PulpSciFiDiffusion",
+        "liminal_diffusion",
+    ]:
         model_config.update(
             {
                 "attention_resolutions": "16",
@@ -1198,6 +1175,12 @@ def clipLoad(model_root, model_name, device):
     return model
 
 
+def open_clipLoad(model_root, model_name, model_config, device):
+    logger.info(f"🤖 Loading model '{model_name}'...")
+    model = open_clip.create_model(model_config, pretrained=f"{model_root}/{model_name}").eval().requires_grad_(False).to(device)
+    return model
+
+
 def do_run(args=None, device=None, is_colab=False, batchNum=None, folders=None):
     free_mem(args.cuda_device)
     try:
@@ -1223,6 +1206,32 @@ def do_run(args=None, device=None, is_colab=False, batchNum=None, folders=None):
             clip_models.append(clipLoad(args.model_path, "RN50x64", device))
         if args.RN101 is True:
             clip_models.append(clipLoad(args.model_path, "RN101", device))
+        if args.ViTB32_laion2b_e16 is True:
+            clip_models.append(open_clipLoad(args.model_path, "vit_b_32-laion2b_e16-af8dbd0c.pth", "ViT-B-32", device))
+        if args.ViTB32_laion400m_e31 is True:
+            clip_models.append(open_clipLoad(args.model_path, "vit_l_14-laion400m_e31-69988bb6.pt", "ViT-B-32", device))
+        if args.ViTB32_laion400m_e32 is True:
+            clip_models.append(open_clipLoad(args.model_path, "vit_b_32-quickgelu-laion400m_e32-46683a32.pt", "ViT-B-32", device))
+        if args.ViTB32quickgelu_laion400m_e31 is True:
+            clip_models.append(open_clipLoad(args.model_path, "vit_b_32-quickgelu-laion400m_e31-d867053b.pt", "ViT-B-32-quickgelu", device))
+        if args.ViTB32quickgelu_laion400m_e32 is True:
+            clip_models.append(open_clipLoad(args.model_path, "vit_b_32-quickgelu-laion400m_e32-46683a32.pt", "ViT-B-32-quickgelu", device))
+        if args.ViTB16_laion400m_e31 is True:
+            clip_models.append(open_clipLoad(args.model_path, "vit_b_16-laion400m_e31-00efa78f.pt", "ViT-B-16", device))
+        if args.ViTB16_laion400m_e32 is True:
+            clip_models.append(open_clipLoad(args.model_path, "vit_b_16-laion400m_e32-55e67d44.pt", "ViT-B-16", device))
+        if args.RN50_yffcc15m is True:
+            clip_models.append(open_clipLoad(args.model_path, "rn50-quickgelu-yfcc15m-455df137.pt", "RN50", device))
+        if args.RN50_cc12m is True:
+            clip_models.append(open_clipLoad(args.model_path, "rn50-quickgelu-cc12m-f000538c.pt", "RN50", device))
+        if args.RN50_quickgelu_yfcc15m is True:
+            clip_models.append(open_clipLoad(args.model_path, "rn50-quickgelu-yfcc15m-455df137.pt", "RN50-quickgelu", device))
+        if args.RN50_quickgelu_cc12m is True:
+            clip_models.append(open_clipLoad(args.model_path, "rn50-quickgelu-cc12m-f000538c.pt", "RN50-quickgelu", device))
+        if args.RN101_yfcc15m is True:
+            clip_models.append(open_clipLoad(args.model_path, "rn50-quickgelu-yfcc15m-455df137.pt", "RN101", device))
+        if args.RN101_quickgelu_yfcc15m is True:
+            clip_models.append(open_clipLoad(args.model_path, "rn101-quickgelu-yfcc15m-3e04b30e.pt", "RN101-quickgelu", device))
 
         ### Load Secondary Model ###
         secondary_model = None
@@ -1471,7 +1480,8 @@ def do_run(args=None, device=None, is_colab=False, batchNum=None, folders=None):
                 disco(args, folders, frame_num, clip_models, init_scale, skip_steps, secondary_model, lpips_model, midas_model, midas_transform, device)
             else:
                 ## Discord Bot Mode
-                dd_bot.bot_loop(args, folders, frame_num, clip_models, init_scale, skip_steps, secondary_model, lpips_model, midas_model, midas_transform, device)
+                results = dd_bot.bot_loop(args, folders, frame_num, clip_models, init_scale, skip_steps, secondary_model, lpips_model, midas_model, midas_transform, device)
+                logger.info(results)
     except:
         tb = traceback.format_exc()
         logger.error(tb)
@@ -1488,6 +1498,35 @@ def disco(args, folders, frame_num, clip_models, init_scale, skip_steps, seconda
     # Create any supporting folders
     args.batchFolder = folders.batch_folder
     args.partialFolder = f"{folders.batch_folder}/partials"
+
+    # KaliYuga model settings. Refer to https://ezcharts.miraheze.org/wiki/Category:Cut_ic_pow as a guide. Values between 1 and 100 all work.
+    pad_or_pulp_cut_overview = "[15]*100+[15]*100+[12]*100+[12]*100+[6]*100+[4]*100+[2]*200+[0]*200"  # @param {type: 'string'}
+    pad_or_pulp_cut_innercut = "[1]*100+[1]*100+[4]*100+[4]*100+[8]*100+[8]*100+[10]*200+[10]*200"  # @param {type: 'string'}
+    pad_or_pulp_cut_ic_pow = "[12]*300+[12]*100+[12]*50+[12]*50+[10]*100+[10]*100+[10]*300"  # @param {type: 'string'}
+    pad_or_pulp_cut_icgray_p = "[0.87]*100+[0.78]*50+[0.73]*50+[0.64]*60+[0.56]*40+[0.50]*50+[0.33]*100+[0.19]*150+[0]*400"  # @param {type: 'string'}
+
+    watercolor_cut_overview = "[14]*200+[12]*200+[4]*400+[0]*200"  # @param {type: 'string'}
+    watercolor_cut_innercut = "[2]*200+[4]*200+[12]*400+[12]*200"  # @param {type: 'string'}
+    watercolor_cut_ic_pow = "[12]*300+[12]*100+[12]*50+[12]*50+[10]*100+[10]*100+[10]*300"  # @param {type: 'string'}
+    watercolor_cut_icgray_p = "[0.7]*100+[0.6]*100+[0.45]*100+[0.3]*100+[0]*600"  # @param {type: 'string'}
+
+    kaliyuga_pixel_art_model_names = ["pixelartdiffusion_expanded", "pixel_art_diffusion_hard_256", "pixel_art_diffusion_soft_256", "pixelartdiffusion4k", "PulpSciFiDiffusion"]
+    kaliyuga_watercolor_model_names = ["watercolordiffusion", "watercolordiffusion_2"]
+    kaliyuga_pulpscifi_model_names = ["PulpSciFiDiffusion"]
+    diffusion_models_256x256_list = ["256x256_diffusion_uncond"] + kaliyuga_pixel_art_model_names + kaliyuga_watercolor_model_names + kaliyuga_pulpscifi_model_names
+
+    if (args.diffusion_model in kaliyuga_pixel_art_model_names) or (args.diffusion_model in kaliyuga_pulpscifi_model_names):
+        args.cut_overview = pad_or_pulp_cut_overview
+        args.cut_innercut = pad_or_pulp_cut_innercut
+        # TODO: Test cut_ic_pow regressions
+        # args.cut_ic_pow = pad_or_pulp_cut_ic_pow
+        args.cut_icgray_p = pad_or_pulp_cut_icgray_p
+    elif args.diffusion_model in kaliyuga_watercolor_model_names:
+        args.cut_overview = watercolor_cut_overview
+        args.cut_innercut = watercolor_cut_innercut
+        # TODO: Test cut_ic_pow regressions
+        # args.cut_ic_pow = watercolor_cut_ic_pow
+        args.cut_icgray_p = watercolor_cut_icgray_p
 
     if args.intermediate_saves and args.intermediates_in_subfolder is True:
         createPath(args.partialFolder)
@@ -1553,6 +1592,7 @@ def disco(args, folders, frame_num, clip_models, init_scale, skip_steps, seconda
     if args.dd_bot:
         progress_url = f"{args.dd_bot_url}/progress/{args.dd_bot_agentname}/{args.batch_name}"
         preview_url = f"{args.dd_bot_url}/preview/{args.dd_bot_agentname}/{args.batch_name}"
+        instructions_url = f"{args.dd_bot_url}/instructions/{args.dd_bot_agentname}"
         logger.info(f"Discord Bot mode enabled: {progress_url}")
 
     if args.seed is not None:
@@ -1780,8 +1820,12 @@ def disco(args, folders, frame_num, clip_models, init_scale, skip_steps, seconda
                 intermediateStep = True
             percent = math.ceil(j / total_steps * 100)
 
+            ## 🤖 BOT STUFF 🤖
             if args.dd_bot:
                 prev_ts = dd_bot.update_progress(progress_url, percent, device, prev_ts)
+                instructions = dd_bot.get_instructions(instructions_url, args)
+            ## 🤖 END OF BOT STUFF 🤖
+
             with image_display:
                 if j % args.display_rate == 0 or cur_t == -1 or intermediateStep == True:
                     for k, image in enumerate(sample["pred_xstart"]):
@@ -2388,6 +2432,19 @@ def processBatch(pargs=None, folders=None, device=None, is_colab=False, session_
         "RN50x16": pargs.RN50x16,
         "RN50x64": pargs.RN50x64,
         "RN101": pargs.RN101,
+        "ViTB32_laion2b_e16": pargs.ViTB32_laion2b_e16,
+        "ViTB32_laion400m_e31": pargs.ViTB32_laion400m_e31,
+        "ViTB32_laion400m_e32": pargs.ViTB32_laion400m_e32,
+        "ViTB32quickgelu_laion400m_e31": pargs.ViTB32quickgelu_laion400m_e31,
+        "ViTB32quickgelu_laion400m_e32": pargs.ViTB32quickgelu_laion400m_e32,
+        "ViTB16_laion400m_e31": pargs.ViTB16_laion400m_e31,
+        "ViTB16_laion400m_e32": pargs.ViTB16_laion400m_e32,
+        "RN50_yffcc15m": pargs.RN50_yffcc15m,
+        "RN50_cc12m": pargs.RN50_cc12m,
+        "RN50_quickgelu_yfcc15m": pargs.RN50_quickgelu_yfcc15m,
+        "RN50_quickgelu_cc12m": pargs.RN50_quickgelu_cc12m,
+        "RN101_yfcc15m": pargs.RN101_yfcc15m,
+        "RN101_quickgelu_yfcc15m": pargs.RN101_quickgelu_yfcc15m,
         "diffusion_sampling_mode": pargs.diffusion_sampling_mode,
         "width_height": pargs.width_height,
         "clip_guidance_scale": pargs.clip_guidance_scale,

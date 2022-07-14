@@ -20,6 +20,7 @@ folders = dd.setupFolders(is_colab=dd.detectColab(), PROJECT_DIR=PROJECT_DIR, pa
 
 # Load Models
 dd.loadModels(folders)
+dd.loadModels2(folders)
 
 # Report System Details
 dd.systemDetails(pargs)

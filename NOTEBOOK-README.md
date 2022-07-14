@@ -12,6 +12,41 @@
 
 
 ## Changes/Enhancements
+- **July 12, 2022**
+ 13 new CLIP models and many more diffusion models have been updated in the entmike/disco-diffusion-1 GitHub fork and entmike/disco-diffusion-1 docker image.  If you use RunPod, entmike/disco-diffusion-1:runpod has the models pre-baked into them as well.
+
+  CLIP
+  -  ViTB32_laion2b_e16
+  -  ViTB32_laion400m_e31
+  -  ViTB32_laion400m_e32
+  -  ViTB32quickgelu_laion400m_e31
+  -  ViTB32quickgelu_laion400m_e32
+  -  ViTB16_laion400m_e31
+  -  ViTB16_laion400m_e32
+  -  RN50_yffcc15m
+  -  RN50_cc12m
+  -  RN50_quickgelu_yfcc15m
+  -  RN50_quickgelu_cc12m
+  -  RN101_yfcc15m
+  -  RN101_quickgelu_yfcc15m
+
+  Diffusion
+  Pixel Art  (Credit https://github.com/KaliYuga-ai/Pixel-Art-Diffusion/blob/e037fd58e2aef58f28d7511ea6dcb184e898e39f/Pixel_Art_Diffusion_v1_0.ipynb)
+  - pixel_art_diffusion_hard_256
+  - pixel_art_diffusion_soft_256
+  - pixelartdiffusion_expanded
+  - pixelartdiffusion4k
+  - PADexpanded
+  - watercolordiffusion
+  - watercolordiffusion_2
+  - PulpSciFiDiffusion
+  - lsun_uncond_100M_1200K_bs128
+  Comic Faces  (Credit: https://huggingface.co/spaces/Gradio-Blocks/clip-guided-faces/blob/main/app.py)
+  - 256x256_openai_comics_faces_by_alex_spirin_084000
+  Ukiyoe  (Credit: https://huggingface.co/thegenerativegeneration/ukiyoe-diffusion-256/tree/main)
+  - ukiyoe_diffusion_256_022000.pt
+  Liminal Spaces (Back Rooms, according to my kids) (Credit: https://colab.research.google.com/drive/11Bs4wCs9R84DVAwDb3MkvDAd8V_Mw1e6?usp=sharing)
+  - liminal_diffusion 
 - **July 9, 2022**
   - Catch up some DD 5.3 features from alembics
   - Horizontal and Vertical symmetry functionality by nshepperd. Symmetry transformation_steps by huemin (https://twitter.com/huemin_art). Symmetry integration into Disco Diffusion by Dmitrii Tochilkin (https://twitter.com/cut_pow)

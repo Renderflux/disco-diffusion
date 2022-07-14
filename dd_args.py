@@ -104,6 +104,19 @@ def parse(a=None):
     parser.add_argument("--RN50x16", help="Use RN50x16 model", type=str2bool, default=gp("RN50x16", False))
     parser.add_argument("--RN50x64", help="Use RN50x64 model", type=str2bool, default=gp("RN50x64", False))
     parser.add_argument("--RN101", help="Use RN101 model", type=str2bool, default=gp("RN101", False))
+    parser.add_argument("--ViTB32_laion2b_e16", help="Use ViTB32_laion2b_e16 model", type=str2bool, default=gp("ViTB32_laion2b_e16", False))
+    parser.add_argument("--ViTB32_laion400m_e31", help="Use ViTB32_laion400m_e31 model", type=str2bool, default=gp("ViTB32_laion400m_e31", False))
+    parser.add_argument("--ViTB32_laion400m_e32", help="Use ViTB32_laion400m_e32 model", type=str2bool, default=gp("ViTB32_laion400m_e32", False))
+    parser.add_argument("--ViTB32quickgelu_laion400m_e31", help="Use ViTB32quickgelu_laion400m_e31 model", type=str2bool, default=gp("ViTB32quickgelu_laion400m_e31", False))
+    parser.add_argument("--ViTB32quickgelu_laion400m_e32", help="Use ViTB32quickgelu_laion400m_e32 model", type=str2bool, default=gp("ViTB32quickgelu_laion400m_e32", False))
+    parser.add_argument("--ViTB16_laion400m_e31", help="Use ViTB16_laion400m_e31 model", type=str2bool, default=gp("ViTB16_laion400m_e31", False))
+    parser.add_argument("--ViTB16_laion400m_e32", help="Use ViTB16_laion400m_e32 model", type=str2bool, default=gp("ViTB16_laion400m_e32", False))
+    parser.add_argument("--RN50_yffcc15m", help="Use RN50_yffcc15m model", type=str2bool, default=gp("RN50_yffcc15m", False))
+    parser.add_argument("--RN50_cc12m", help="Use RN50_cc12m model", type=str2bool, default=gp("RN50_cc12m", False))
+    parser.add_argument("--RN50_quickgelu_yfcc15m", help="Use RN50_quickgelu_yfcc15m model", type=str2bool, default=gp("RN50_quickgelu_yfcc15m", False))
+    parser.add_argument("--RN50_quickgelu_cc12m", help="Use RN50_quickgelu_cc12m model", type=str2bool, default=gp("RN50_quickgelu_cc12m", False))
+    parser.add_argument("--RN101_yfcc15m", help="Use RN101_yfcc15m model", type=str2bool, default=gp("RN101_yfcc15m", False))
+    parser.add_argument("--RN101_quickgelu_yfcc15m", help="Use RN101_quickgelu_yfcc15m model", type=str2bool, default=gp("RN101_quickgelu_yfcc15m", False))
     parser.add_argument(
         "--diffusion_model",
         help="Diffusion Model",
@@ -113,9 +126,16 @@ def parse(a=None):
             "256x256_diffusion_uncond",
             "pixel_art_diffusion_hard_256",
             "pixel_art_diffusion_soft_256",
+            "pixelartdiffusion_expanded",
+            "pixelartdiffusion4k",
+            "PADexpanded",
+            "watercolordiffusion",
+            "watercolordiffusion_2",
+            "PulpSciFiDiffusion",
             "256x256_openai_comics_faces_by_alex_spirin_084000",
             "lsun_uncond_100M_1200K_bs128",
-            # "vit_b_16_plus_240-laion400m_e31-8fb26589",
+            "ukiyoe_diffusion_256_022000.pt",
+            "liminal_diffusion",
         ],
     )
     parser.add_argument("--use_secondary_model", help="Use RN101 model", type=str2bool, default=gp("use_secondary_model", True))
@@ -182,6 +202,8 @@ def parse(a=None):
     parser.add_argument("--cut_overview", help="Cut Overview", default=gp("cut_overview", "[12]*400+[4]*600"), required=False)
     parser.add_argument("--cut_innercut", help="Cut Innercut", default=gp("cut_innercut", "[4]*400+[12]*600"), required=False)
     parser.add_argument("--cut_icgray_p", help="Cut IC Gray Power", default=gp("cut_icgray_p", "[0.2]*400+[0]*600"), required=False)
+    # TODO: Check for regressions
+    # parser.add_argument("--cut_ic_pow", help="Cut IC Power", default=gp("cut_ic_pow", "[1]*1000"), required=False)
     parser.add_argument("--cut_ic_pow", help="Cut IC Power", type=int, default=gp("cut_ic_pow", 1), required=False)
     parser.add_argument("--resume_run", help="Resume Run", type=str2bool, default=gp("resume_run", False), required=False)
     parser.add_argument("--run_to_resume", help="Run to Resume", default=gp("run_to_resume", "latest"), required=False)

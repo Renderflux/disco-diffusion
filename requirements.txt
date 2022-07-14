@@ -33,7 +33,8 @@ matplotlib
 opencv-python
 nvidia-ml-py3
 git+https://github.com/openai/CLIP
-git+https://github.com/ahupp/guided-diffusion@packagify
+git+https://github.com/mlfoundations/open_clip.git
+git+https://github.com/entmike/guided-diffusion.git@packagify
 git+https://github.com/ahupp/ResizeRight@packagify
 git+https://github.com/ahupp/MiDaS@packagify 
 git+https://github.com/pytti-tools/AdaBins@installable 

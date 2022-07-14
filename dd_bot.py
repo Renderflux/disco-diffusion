@@ -1,3 +1,5 @@
+import sys
+import json
 from loguru import logger
 import os
 import subprocess
@@ -7,6 +9,16 @@ import math
 import time
 import traceback
 from yaml import dump, full_load
+
+# Error handler
+class RestartException(Exception):
+    def __init__(self, error):
+        self.error = error
+
+
+class CancelException(Exception):
+    def __init__(self, error):
+        self.error = error
 
 
 def upload_progress(preview_url, args):
@@ -18,6 +30,44 @@ def upload_progress(preview_url, args):
     except:
         logger.error("DD Bot error.  Continuing...")
         pass
+
+
+def ack_instructions(instructions_url, instructions):
+    r = requests.delete(instructions_url)
+    return r
+
+
+def abandon_job(args):
+    abandon_url = f"{args.dd_bot_url}/abandonjob/{args.dd_bot_agentname}"
+    try:
+        r = requests.get(abandon_url).json()
+        logger.info("Job abandoned.")
+    except:
+        logger.info("Abandon timed out.")
+        r = None
+    return r
+
+
+def get_instructions(instructions_url, args):
+    r = requests.get(instructions_url)
+    ins = r.json()
+    if ins:
+        if "command" in ins:
+            command = ins["command"]
+            logger.info(f"👉 Instructions: {command}")
+            # Restart
+            if command == "restart":
+                logger.info("🔃 Restarting...")
+                ack_instructions(instructions_url, ins)
+                raise RestartException(ins)
+            # Abandon Job
+            if command == "abandon":
+                logger.info("🔃 Abandoning job...")
+                ack_instructions(instructions_url, ins)
+                abandon_job(args)
+                raise CancelException(ins)
+
+    return ins
 
 
 def update_progress(progress_url, percent, device, prev_ts):
@@ -59,19 +109,44 @@ def bot_loop(args, folders, frame_num, clip_models, init_scale, skip_steps, seco
         url = f"{args.dd_bot_url}/takeorder/{args.dd_bot_agentname}"
         try:
             logger.debug(f"🌎 Checking '{url}'")
-            my_model = "default"
-            if args.ViTB32 and args.ViTB16 and args.RN50:
-                my_model = "default"
-            if args.ViTB32 and args.ViTB16 and args.ViTL14:
-                my_model = "vitl14"
-            if args.ViTB32 and args.ViTB16 and args.ViTL14_336:
-                my_model = "vitl14x336"
-            if args.ViTB32 and args.ViTB16 and args.RN50x64:
-                my_model = "rn50x64"
-            if args.ViTB32 and args.ViTB16 and args.RN50x64 and args.ViTL14_336:
-                my_model = "ludicrous"
+            my_model = None
+            # if args.ViTB32 and args.ViTB16 and args.RN50:
+            #     my_model = "default"
+            # if args.ViTB32 and args.ViTB16 and args.ViTL14:
+            #     my_model = "vitl14"
+            # if args.ViTB32 and args.ViTB16 and args.ViTL14_336:
+            #     my_model = "vitl14x336"
+            # if args.ViTB32 and args.ViTB16 and args.RN50x64:
+            #     my_model = "rn50x64"
+            # if args.ViTB32 and args.ViTB16 and args.RN50x64 and args.ViTL14_336:
+            #     my_model = "ludicrous"
 
-            results = requests.post(url, data={"bot_version": 2.0, "idle_time": idle_time, "model": my_model}).json()
+            my_model = "custom"
+
+            bot_config = {
+                "bot_version": 2.2,
+                "idle_time": idle_time,
+                "model": my_model,
+                "clip_models": json.dumps(
+                    {
+                        "ViTB16": args.ViTB16,
+                        "ViTB32": args.ViTB32,
+                        "RN50": args.RN50,
+                        "RN50x4": args.RN50x4,
+                        "RN50x16": args.RN50x16,
+                        "RN50x64": args.RN50x64,
+                        "ViTL14": args.ViTL14,
+                        "ViTL14_336": args.ViTL14_336,
+                        "RN101": args.RN101,
+                    }
+                ),
+            }
+            logger.info(bot_config)
+            results = requests.post(
+                url,
+                data=bot_config,
+            ).json()
+
             if results["success"]:
                 idle_time = 0
                 connected = True
@@ -250,6 +325,12 @@ def bot_loop(args, folders, frame_num, clip_models, init_scale, skip_steps, seco
         except KeyboardInterrupt as kb:
             logger.info("Exiting...")
             run = False
+        except RestartException as e:
+            logger.info("🔃 Received Restart signal.")
+            run = False
+            return "🔃 Received Restart signal."
+        except CancelException as e:
+            logger.info("🔃 Abandon signal.")
         except Exception as e:
             if connected:
                 tb = traceback.format_exc()
