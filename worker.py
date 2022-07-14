@@ -10,7 +10,7 @@ import re
 BASE = "https://api.renderflux.com/"
 JOB_SEARCH_WAIT = 5
 JOB_FAIL_WAIT = 5
-PROGRESS_INTERVAL = 120
+PROGRESS_INTERVAL = 60
 
 async def fetch_job():
     async with aiohttp.ClientSession() as session:
