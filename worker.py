@@ -1,6 +1,6 @@
 import asyncio
 import base64
-import json
+import json as JSON
 import os
 import subprocess
 import sys
@@ -66,7 +66,7 @@ async def update_job_progress(job, process):
             try:
                 with open(progress_filename, "r") as f:
                     data = f.read()
-                    js = json.loads(data if data else "{}")
+                    js = JSON.loads(data if data else "{}")
                     progress = js.get("percent", 0)
             except Exception as e:
                 print(f"Error reading progress file: {e}")
