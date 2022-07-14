@@ -63,10 +63,13 @@ async def update_job_progress(job, process):
         if not os.path.exists(progress_filename):
             print(f"Progress file not found: {progress_filename}")
         else:
-            with open(progress_filename, "r+") as f:
-                data = f.read()
-                js = json.loads(data if data else "{}")
-                progress = js.get("percent", 0)
+            try:
+                with open(progress_filename, "r") as f:
+                    data = f.read()
+                    js = json.loads(data if data else "{}")
+                    progress = js.get("percent", 0)
+            except Exception as e:
+                print(f"Error reading progress file: {e}")
 
         # old stuff from trying to get the ETA and etc from stdout PIPE but it didn't work and I don't know why
         # if line:
