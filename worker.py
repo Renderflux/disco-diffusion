@@ -28,6 +28,7 @@ def construct_cmd(job, _id):
     args.append(f"--width_height \"[{job['width']}, {job['height']}]\"")
     args.append(f"--batch_name {_id}")
     args.append("--n_batches=1")
+    args.append("--display_rate=5")
     args.append(f"--steps={job['steps']}")
 
     for model, value in job['models'].items():
