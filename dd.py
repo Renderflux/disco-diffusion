@@ -354,7 +354,7 @@ class MakeCutoutsDango(nn.Module):
         self.IC_Grey_P = IC_Grey_P
         self.cutout_debug = args.cutout_debug
         self.debug_folder = f"{args.batchFolder}/debug"
-        if args.animation_mode == "None":
+        if args.animation_mode == "None" or args.animation_mode is None :
             self.augs = T.Compose(
                 [
                     T.RandomHorizontalFlip(p=0.5),
@@ -1313,7 +1313,7 @@ def do_run(args=None, device=None, is_colab=False, batchNum=None, folders=None):
             display.clear_output(wait=True)  # temp fix
 
             # Print Frame progress if animation mode is on
-            if args.animation_mode != "None":
+            if args.animation_mode != "None" and args.animation_mode is not None:
                 batchBar = tqdm(range(args.max_frames), ncols=40, dynamic_ncols=True, desc="Frames", position=0, leave=True)
                 batchBar.n = frame_num
                 batchBar.refresh()
@@ -1321,7 +1321,7 @@ def do_run(args=None, device=None, is_colab=False, batchNum=None, folders=None):
             skip_steps = args.skip_steps
             # Inits if not video frames
             if args.animation_mode != "Video Input":
-                if args.init_image in ["", "None", "none", "NONE"]:
+                if args.init_image in ["", "None", "none", "NONE"] or args.init_image is None:
                     args.init_image = None
                 else:
                     args.init_image = args.init_image
@@ -1330,7 +1330,7 @@ def do_run(args=None, device=None, is_colab=False, batchNum=None, folders=None):
                 skip_steps = args.skip_steps
 
                 # Credit: aztec_man#3032 (5/17/2022)
-                if args.target_image in ["", "None", "none", "NONE"]:
+                if args.target_image in ["", "None", "none", "NONE"] or args.target_image is None:
                     args.target_image = None
                 else:
                     args.target_image = args.target_image
@@ -1754,7 +1754,7 @@ def disco(args, folders, frame_num, clip_models, init_scale, skip_steps, seconda
 
     image_display = Output()
     for i in range(args.n_batches):
-        if args.animation_mode == "None":
+        if args.animation_mode == "None" or args.animation_mode is None:
             display.clear_output(wait=True)
             batchBar = tqdm(range(args.n_batches), ncols=40, dynamic_ncols=True, desc="Batches", position=0, leave=True)
             batchBar.n = i
@@ -1844,7 +1844,7 @@ def disco(args, folders, frame_num, clip_models, init_scale, skip_steps, seconda
 
                         if args.n_batches > 0:
                             # if intermediates are saved to the subfolder, don't append a step or percentage to the name
-                            save_num = f"{frame_num:04}" if args.animation_mode != "None" else i
+                            save_num = f"{frame_num:04}" if (args.animation_mode != "None" and args.animation_mode is not None)else i
                             if cur_t == -1 and args.intermediates_in_subfolder is True:
                                 filename = f"{args.batch_name}({args.batchNum})_{save_num}.png"
                             else:
@@ -1893,7 +1893,7 @@ def disco(args, folders, frame_num, clip_models, init_scale, skip_steps, seconda
                                     batch_name=args.batch_name,
                                     batchNum=args.batchNum,
                                 )
-                            if args.animation_mode != "None":
+                            if args.animation_mode != "None" and args.animation_mode is not None:
                                 # image.save("prevFrame.png")
                                 image.save(f"{args.batchFolder}/prevFrame.png")
                             image_name = f"{args.batchFolder}/{filename}"
@@ -2464,7 +2464,7 @@ def processBatch(pargs=None, folders=None, device=None, is_colab=False, session_
         "image_prompts_series": pargs.image_prompts,
         "seed": seed,
         "display_rate": pargs.display_rate,
-        "n_batches": pargs.n_batches if pargs.animation_mode == "None" else 1,
+        "n_batches": pargs.n_batches if (pargs.animation_mode == "None" or pargs.animation_mode is None) else 1,
         "batch_size": 1,
         "batch_name": pargs.batch_name,
         "steps": pargs.steps,
@@ -2480,7 +2480,7 @@ def processBatch(pargs=None, folders=None, device=None, is_colab=False, session_
         "extract_nth_frame": pargs.extract_nth_frame,
         "video_init_seed_continuity": pargs.video_init_seed_continuity,
         "key_frames": pargs.key_frames,
-        "max_frames": pargs.max_frames if pargs.animation_mode != "None" else 1,
+        "max_frames": pargs.max_frames if (pargs.animation_mode == "None" or pargs.animation_mode is None) else 1,
         "interp_spline": pargs.interp_spline,
         "start_frame": start_frame,
         "angle": pargs.angle,
@@ -2568,7 +2568,7 @@ def processBatch(pargs=None, folders=None, device=None, is_colab=False, session_
     finally:
         free_mem(args.cuda_device)
 
-    if pargs.animation_mode != "None":
+    if pargs.animation_mode != "None" and pargs.animation_mode is not None:
         if pargs.skip_video_for_run_all == True:
             logger.warning("⚠️ Skipping video creation, uncheck skip_video_for_run_all if you want to run it")
         else:
