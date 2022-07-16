@@ -10,12 +10,12 @@ import re
 BASE = "https://api.renderflux.com/"
 JOB_SEARCH_WAIT = 5
 JOB_FAIL_WAIT = 5
-PROGRESS_INTERVAL = 60
+PROGRESS_INTERVAL = 45
 
 async def fetch_job():
     async with aiohttp.ClientSession() as session:
         while True:
-            async with session.get(f"{BASE}batches/next") as resp:
+            async with session.get(f"{BASE}internal/workers/batches/next") as resp:
                 if resp.status == 200:
                     return await resp.json()
                 else:
@@ -59,7 +59,7 @@ async def update_job_progress(job, process):
         print(f"Getting progress...")
 
         progress = 0
-        progress_filename = f"images_out/{job['_id']}/progress_data.txt"
+        progress_filename = f"images_out/{job['id']}/progress_data.txt"
         if not os.path.exists(progress_filename):
             print(f"Progress file not found: {progress_filename}")
         else:
@@ -92,8 +92,8 @@ async def update_job_progress(job, process):
                 "image": base64.b64encode(open(filename, "rb").read()).decode("utf-8")
             }
 
-            async with session.post(f"{BASE}jobs/{job['_id']}/progress", json=json) as resp:
-                if resp.status != 200:
+            async with session.post(f"{BASE}internal/workers/jobs/{job['id']}/progress", json=json) as resp:
+                if resp.status != 204:
                     print(f"Error sending progress data to API...")
                     await asyncio.sleep(JOB_FAIL_WAIT)
                     continue
@@ -103,9 +103,9 @@ async def update_job_progress(job, process):
 async def run_job():
     job = await fetch_job()
 
-    print(f"Got job: {job.get('_id')}")
+    print(f"Got job: {job.get('id')}\n(`{job['settings']['prompt']}`)\n\n")
     
-    cmd = construct_cmd(job['settings'], job.get('_id'))
+    cmd = construct_cmd(job['settings'], job.get('id'))
     process = await asyncio.create_subprocess_shell(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     print(f"Spawned process: {cmd}")
@@ -124,8 +124,8 @@ async def run_job():
         print(f"Stderr: {(await process.stderr.read()).decode('utf-8')}")
 
         async with aiohttp.ClientSession() as session:
-            async with session.post(f"{BASE}jobs/{job['_id']}/fail", json={"error": "job failed"}) as resp:
-                if resp.status != 200:
+            async with session.post(f"{BASE}internal/workers/jobs/{job['id']}/fail", json={"error": "job failed"}) as resp:
+                if resp.status != 204:
                     print(f"Error sending fail data to API... {resp.status}: {await resp.text()}")
                     await asyncio.sleep(JOB_FAIL_WAIT)
                     return
@@ -135,13 +135,13 @@ async def run_job():
         return
 
     json = {
-        "image": base64.b64encode(open(f"images_out/{job['_id']}/{job['_id']}(0)_0.png", "rb").read()).decode("utf-8")
+        "image": base64.b64encode(open(f"images_out/{job['id']}/{job['id']}(0)_0.png", "rb").read()).decode("utf-8")
     }
 
     # send the file data to the API when the job completes
     async with aiohttp.ClientSession() as session:
-        async with session.post(f"{BASE}jobs/{job['_id']}/complete", json=json) as resp:
-            if resp.status != 200:
+        async with session.post(f"{BASE}internal/workers/jobs/{job['id']}/complete", json=json) as resp:
+            if resp.status != 204:
                 print(f"Error sending file data to API...")
                 await asyncio.sleep(JOB_FAIL_WAIT)
                 return
