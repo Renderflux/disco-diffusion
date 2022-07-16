@@ -4,13 +4,15 @@ import json as JSON
 import os
 import subprocess
 import sys
+from time import time
 import aiohttp
 import re
 
 BASE = "https://api.renderflux.com/"
 JOB_SEARCH_WAIT = 5
 JOB_FAIL_WAIT = 5
-PROGRESS_INTERVAL = 45
+PROGRESS_INTERVAL = 5
+IMAGE_SEND_INTERVAL = 30
 
 async def fetch_job():
     async with aiohttp.ClientSession() as session:
@@ -52,6 +54,8 @@ async def update_job_progress(job, process):
 
     filename = f"images_out/{job['id']}/progress.png"
 
+    last_sent_image = 0
+
     while True:
         await asyncio.sleep(PROGRESS_INTERVAL)
         # get the most recent line of the process's stdout without waiting for it to finish
@@ -89,8 +93,12 @@ async def update_job_progress(job, process):
 
             json = {
                 "progress": progress,
-                "image": base64.b64encode(open(filename, "rb").read()).decode("utf-8")
             }
+
+            if (time() - last_sent_image) > IMAGE_SEND_INTERVAL:
+                print(f"Sending image...")
+                last_sent_image = time()
+                json['image'] = base64.b64encode(open(filename, "rb").read()).decode("utf-8")
 
             async with session.post(f"{BASE}internal/workers/jobs/{job['id']}/progress", json=json) as resp:
                 if resp.status != 204:
