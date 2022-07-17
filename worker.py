@@ -81,6 +81,8 @@ def construct_cmd(job, _id):
     args.append(f"--cut_overview={job['cut_overview']}")
     args.append(f"--use_secondary_model={job['use_secondary_model']}")
 
+    job.get('tv_scale') and args.append(f"--tv_scale {job.get('tv_scale')}")
+
     return " ".join(args)
 
 async def update_job_progress(job, process):
