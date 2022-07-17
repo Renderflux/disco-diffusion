@@ -1,20 +1,31 @@
 import asyncio
 import base64
 import json as JSON
+from multiprocessing.pool import TERMINATE
 import os
 import subprocess
 import sys
 from time import time
 import aiohttp
 import re
+from os import getenv
 
 BASE = "https://api.renderflux.com/"
 JOB_SEARCH_WAIT = 5
 JOB_FAIL_WAIT = 5
 PROGRESS_INTERVAL = 5
 IMAGE_SEND_INTERVAL = 30
+SUICIDE_AFTER_SECONDS = 300
+
+TERMINATE_POD = """
+    mutation termindatePod($podId: String!) {
+        podTerminate(input: {podId: $podId})
+    }
+"""
 
 async def fetch_job():
+    start = time()
+
     async with aiohttp.ClientSession() as session:
         while True:
             async with session.get(f"{BASE}internal/workers/batches/next") as resp:
@@ -22,6 +33,28 @@ async def fetch_job():
                     return await resp.json()
                 else:
                     await asyncio.sleep(JOB_SEARCH_WAIT)
+
+                if time() - start > SUICIDE_AFTER_SECONDS:
+                    pod_id = getenv("RUNPOD_POD_ID")
+                    auth = getenv("RUNPOD_TOKEN")
+
+                    if not pod_id:
+                        print("HELP! Tried to suicide but RUNPOD_POD_ID env var is not present. I have to just sit here now...")
+                        continue
+
+                    if not auth:
+                        print("HELP! tried to suicide but RUNPOD_TOKEN env var was not present. I have to just sit here now...")
+                        continue
+
+                    # make req to suicide
+                    async with session.post(f"https://api.runpod.io/graphql?api_key={auth}", json={
+                        "query": TERMINATE_POD,
+                        "variables": {"podId": pod_id}
+                    }) as resp:
+
+                        if not resp.status == 200:
+                            print(f"failed to kill myself: {resp.status}, {await resp.text()}")
+
 
 def construct_cmd(job, _id):
     args = ["python disco.py"]
