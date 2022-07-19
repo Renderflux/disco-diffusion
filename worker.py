@@ -74,7 +74,7 @@ def construct_cmd(job, _id):
     args.append(f"--clip_guidance_scale={job['clip_guidance_scale']}")
     args.append(f"--diffusion_model={job['diffusion_model']}")
     args.append(f"--clamp_max={job['clamp_max']}")
-    args.append(f"--cut_ic_pow={job['cut_ic_pow']}")
+    args.append(f"--cut_ic_pow={int(job['cut_ic_pow'])}")
     args.append(f"--cutn_batches={job['cutn_batches']}")
     args.append(f"--sat_scale={job['sat_scale']}")
     args.append(f"--set_seed={job['seed']}")
