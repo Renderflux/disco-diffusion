@@ -18,6 +18,9 @@ jobs:
           echo "Free space:"
           df -h
           
+    - name: Login to docker hub
+      run: docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          
     - uses: actions/checkout@v3
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag kajdev/disco-diffusion:latest
