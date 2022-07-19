@@ -65,6 +65,7 @@ def construct_cmd(job, _id):
     args.append("--n_batches=1")
     args.append("--display_rate=5")
     args.append(f"--steps={job['steps']}")
+    args.append(f"--skip_steps={job.get('skip_steps', 10)}")
 
     for model, value in job['models'].items():
         args.append(f"--{model} {value}")
