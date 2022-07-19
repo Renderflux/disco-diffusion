@@ -139,9 +139,10 @@ async def update_job_progress(job, process):
             async with session.post(f"{BASE}internal/workers/jobs/{job['id']}/progress", json=json) as resp:
                 if resp.status == 205:
                     print(f"Got request to terminate job...")
+                    job['terminated'] = True
                     process.terminate()
                     return
-                    
+
                 if resp.status != 204:
                     print(f"Error sending progress data to API...")
                     await asyncio.sleep(JOB_FAIL_WAIT)
@@ -165,6 +166,10 @@ async def run_job():
     await process.wait()
 
     progress_task.cancel()
+
+    if job.get('terminated'):
+        print(f"Job was terminated...")
+        return
 
     if process.returncode != 0:
         print(f"Error with job...")
