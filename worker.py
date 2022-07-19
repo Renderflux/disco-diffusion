@@ -69,6 +69,7 @@ def construct_cmd(job, _id):
     for model, value in job['models'].items():
         args.append(f"--{model} {value}")
 
+
     args.append(f"--eta={job['eta']}")
     args.append(f"--clip_guidance_scale={job['clip_guidance_scale']}")
     args.append(f"--diffusion_model={job['diffusion_model']}")
