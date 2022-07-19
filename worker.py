@@ -137,6 +137,11 @@ async def update_job_progress(job, process):
                 json['image'] = base64.b64encode(open(filename, "rb").read()).decode("utf-8")
 
             async with session.post(f"{BASE}internal/workers/jobs/{job['id']}/progress", json=json) as resp:
+                if resp.status == 205:
+                    print(f"Got request to terminate job...")
+                    process.terminate()
+                    return
+                    
                 if resp.status != 204:
                     print(f"Error sending progress data to API...")
                     await asyncio.sleep(JOB_FAIL_WAIT)
