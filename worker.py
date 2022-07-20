@@ -16,6 +16,7 @@ JOB_FAIL_WAIT = 5
 PROGRESS_INTERVAL = 5
 IMAGE_SEND_INTERVAL = 30
 SUICIDE_AFTER_SECONDS = 300
+JOB_INTERVAL_WAIT = 5
 
 TERMINATE_POD = """
     mutation termindatePod($podId: String!) {
@@ -185,6 +186,7 @@ async def run_job():
 
     if job.get('terminated'):
         print(f"Job was terminated...")
+        await asyncio.sleep(JOB_FAIL_WAIT)
         return
 
     if process.returncode != 0:
@@ -222,6 +224,7 @@ async def main():
     while True:
         try:
             await run_job()
+            await asyncio.sleep(JOB_INTERVAL_WAIT)
         except Exception as e:
             print(e)
             await asyncio.sleep(JOB_FAIL_WAIT)
