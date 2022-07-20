@@ -32,7 +32,11 @@ async def fetch_job():
                 if resp.status == 200:
                     return await resp.json()
                 else:
+                    print(f"no job, status: {resp.status}")
                     await asyncio.sleep(JOB_SEARCH_WAIT)
+
+                if time() - start > SUICIDE_AFTER_SECONDS / 2:
+                    print(f"Will suicide in another {SUICIDE_AFTER_SECONDS / 2} seconds")
 
                 if time() - start > SUICIDE_AFTER_SECONDS:
                     pod_id = getenv("RUNPOD_POD_ID")
@@ -65,7 +69,7 @@ def construct_cmd(job, _id):
         for prompt in job["prompts"]:
             prompts.append(f"\\\"{prompt['prompt']}:{prompt['weight']}\\\"")
 
-        args.append("--text_prompt \"{\\\"0\\\": ["+', '.join(prompts)+"]}\"")
+        args.append("--text_prompt \"{\\\"0\\\": ["+', '.join(prompts).replace("\"", '')+"]}\"")
     else:
         args.append("--text_prompt \"{\\\"0\\\": [\\\""+job['prompt']+"\\\"]}\"")
 
