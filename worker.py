@@ -165,7 +165,7 @@ async def update_job_progress(job, process):
 async def run_job():
     job = await fetch_job()
 
-    print(f"Got job: {job.get('id')}\n(`{job['settings']['prompt']}`)\n\n")
+    print(f"Got job: {job.get('id')}\n(`{job['settings'].get('prompt', job['settings'].get('prompts'))}`)\n\n")
     
     cmd = construct_cmd(job['settings'], job.get('id'))
     process = await asyncio.create_subprocess_shell(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
