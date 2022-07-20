@@ -70,6 +70,8 @@ def construct_cmd(job, _id):
     for model, value in job['models'].items():
         args.append(f"--{model} {value}")
 
+    if job.get("init_image"):
+        args.append(f"--init_image \"{job['init_image']}\"")
 
     args.append(f"--eta={job['eta']}")
     args.append(f"--clip_guidance_scale={job['clip_guidance_scale']}")
