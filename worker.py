@@ -69,7 +69,7 @@ def construct_cmd(job, _id):
         for prompt in job["prompts"]:
             prompts.append(f"\\\"{prompt['prompt']}:{prompt['weight']}\\\"")
 
-        args.append("--text_prompt \"{\\\"0\\\": ["+', '.join(prompts).replace("\"", '')+"]}\"")
+        args.append("--text_prompt \"{\\\"0\\\": ["+', '.join(prompts)+"]}\"")
     else:
         args.append("--text_prompt \"{\\\"0\\\": [\\\""+job['prompt']+"\\\"]}\"")
 
