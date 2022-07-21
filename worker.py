@@ -189,11 +189,14 @@ async def run_job():
     if process.returncode != 0:
         print(f"Error with job...")
 
-        print(f"Stdout: {(await process.stdout.read()).decode('utf-8')}")
-        print(f"Stderr: {(await process.stderr.read()).decode('utf-8')}")
+        stderr = (await process.stderr.read()).decode('utf-8')
+        print(f"STDERR: {stderr}")
+
+        stdout = (await process.stdout.read()).decode('utf-8')
+        print(f"STDOUT: {stdout}")
 
         async with aiohttp.ClientSession() as session:
-            async with session.post(f"{BASE}internal/workers/jobs/{job['id']}/fail", json={"error": "job failed"}) as resp:
+            async with session.post(f"{BASE}internal/workers/jobs/{job['id']}/fail", json={"error": stderr + stdout}) as resp:
                 if resp.status != 204:
                     print(f"Error sending fail data to API... {resp.status}: {await resp.text()}")
                     await asyncio.sleep(JOB_FAIL_WAIT)
