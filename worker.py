@@ -113,8 +113,6 @@ async def update_job_progress(job, process):
         await asyncio.sleep(PROGRESS_INTERVAL)
         # get the most recent line of the process's stdout without waiting for it to finish
 
-        print(f"Getting progress...")
-
         progress = 0
         progress_filename = f"images_out/{job['id']}/progress_data.txt"
         if not os.path.exists(progress_filename):
@@ -149,7 +147,6 @@ async def update_job_progress(job, process):
             }
 
             if (time() - last_sent_image) > IMAGE_SEND_INTERVAL:
-                print(f"Sending image...")
                 last_sent_image = time()
                 json['image'] = base64.b64encode(open(filename, "rb").read()).decode("utf-8")
 
